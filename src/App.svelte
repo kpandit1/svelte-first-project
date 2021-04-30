@@ -2,8 +2,28 @@
   let todos = [
     { key: 0, task: "Mow lawn", done: false },
     { key: 1, task: "Do dishes", done: false },
-    { key: 2, task: "Apply to jobs", done: false },
+    { key: 2, task: "Apply to jobs", done: true },
   ];
+  let newTodoInput = "";
+
+  function handleAdd() {
+    if (newTodoInput === "") {
+      return;
+    }
+    todos = [
+      ...todos,
+      {
+        key: todos.length,
+        task: newTodoInput,
+        done: false,
+      },
+    ];
+    newTodoInput = "";
+  }
+  let showDone = true;
+
+  $: filteredTodos = todos.filter((todo) => !todo.done);
+  $: displayTodos = showDone ? todos : filteredTodos;
 </script>
 
 <main>
@@ -11,14 +31,30 @@
     <h1>To-Do List</h1>
   </div>
   <div class="row">
+    <form on:submit|preventDefault={handleAdd}>
+      <input class="add-todo" type="text" bind:value={newTodoInput} />
+      <button type="submit" class="btn">+ ADD</button>
+    </form>
+  </div>
+  <div class="row">
     <ul class="todos">
-      {#each todos as todo}
-        <li class="todo-row">
-          <input class="todo-done" type="checkbox" checked={todo.checked} />
+      {#each displayTodos as todo, i}
+        <li class="todo-row" class:done={todo.done}>
+          <input
+            class="todo-done"
+            type="checkbox"
+            checked={todo.done}
+            on:click={() => (todos[i].done = !todos[i].done)}
+          />
           {todo.task}
         </li>
       {/each}
     </ul>
+  </div>
+  <div class="row">
+    <button on:click={() => (showDone = !showDone)}
+      >{showDone ? "Hide" : "Show"} done</button
+    >
   </div>
 </main>
 
@@ -27,10 +63,18 @@
     padding-bottom: 10px;
   }
 
+  .add-todo {
+    width: 300px;
+    margin-right: 4px;
+  }
   .row {
     width: 100%;
     display: flex;
     justify-content: center;
+  }
+
+  .done {
+    text-decoration: line-through;
   }
 
   main {
@@ -41,6 +85,7 @@
     font-family: Roboto, sans-serif;
     background: white;
     border-radius: 5px;
+    margin-top: 10px;
   }
   ul,
   li {
@@ -49,5 +94,8 @@
   }
   .todo-done {
     margin-right: 10px;
+  }
+  button {
+    cursor: pointer;
   }
 </style>
